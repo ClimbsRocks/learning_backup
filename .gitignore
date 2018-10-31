@@ -1,0 +1,9 @@
+./baselines/*
+./geometry/*
+./geometry2/*
+./**/venv/*
+baselines
+geometry2
+geometry
+openai_ros
+
