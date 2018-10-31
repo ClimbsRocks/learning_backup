@@ -1,51 +1,73 @@
-from openai_ros import robot_gazebo_env, robot_gazebo_env_goal
-
 import numpy
 import rospy
-from openai_ros import robot_gazebo_env_goal
+from openai_ros import robot_gazebo_env
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
-from fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, EeTrajRequest, JointTraj, JointTrajRequest
+from openai_ros.fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, EeTrajRequest, JointTraj, JointTrajRequest
 
 
-class FetchEnv(robot_gazebo_env_goal.RobotGazeboEnv):
-    """Superclass for all Robot environments.
+class FetchEnv(robot_gazebo_env.RobotGazeboEnv):
+    """Superclass for all Fetch environments.
     """
 
     def __init__(self):
+        print ("Entered Fetch Env")
+        """Initializes a new Fetch environment.
 
-            """Initializes a new Fetch environment.
+        Args:
 
-            """
-
-            # We Start all the ROS related Subscribers and publishers
-
-            JOINT_STATES_SUBSCRIBER = '/joint_states'
-
-            self.joint_states_sub = rospy.Subscriber(JOINT_STATES_SUBSCRIBER, JointState, self.joints_callback)
-            self.joints = JointState()
-
-            self.ee_traj_client = rospy.ServiceProxy('/ee_traj_srv', EeTraj)
-            self.joint_traj_client = rospy.ServiceProxy('/joint_traj_srv', JointTraj)
-            self.ee_pose_client = rospy.ServiceProxy('/ee_pose_srv', EePose)
-            self.ee_rpy_client = rospy.ServiceProxy('/ee_rpy_srv', EeRpy)
-
-            # Variables that we give through the constructor.
-
-            self.controllers_list = []
-
-            self.robot_name_space = ""
-            self.reset_controls = False
-
-            # We launch the init function of the Parent Class robot_gazebo_env_goal.RobotGazeboEnv
-            super(FetchEnv, self).__init__(controllers_list=self.controllers_list,
-                                                    robot_name_space=self.robot_name_space,
-                                                    reset_controls=False)
+        """
 
 
+        """
+        To check any topic we need to have the simulations running, we need to do two things:
+        1) Unpause the simulation: without that the stream of data doesn't flow. This is for simulations
+        that are paused for whatever reason
+        2) If the simulation was running already for some reason, we need to reset the controllers.
+        This has to do with the fact that some plugins with tf don't understand the reset of the simulation
+        and need to be reset to work properly.
+        """
+
+        # We Start all the ROS related Subscribers and publishers
+
+        JOINT_STATES_SUBSCRIBER = '/joint_states'
+
+        self.joint_states_sub = rospy.Subscriber(JOINT_STATES_SUBSCRIBER, JointState, self.joints_callback)
+        self.joints = JointState()
+
+        self.ee_traj_client = rospy.ServiceProxy('/ee_traj_srv', EeTraj)
+        self.joint_traj_client = rospy.ServiceProxy('/joint_traj_srv', JointTraj)
+        self.ee_pose_client = rospy.ServiceProxy('/ee_pose_srv', EePose)
+        self.ee_rpy_client = rospy.ServiceProxy('/ee_rpy_srv', EeRpy)
+
+        # Variables that we give through the constructor.
+
+        self.controllers_list = []
+
+        self.robot_name_space = ""
+
+        # We launch the init function of the Parent Class robot_gazebo_env_goal.RobotGazeboEnv
+        super(FetchEnv, self).__init__(controllers_list=self.controllers_list,
+                                                robot_name_space=self.robot_name_space,
+                                                reset_controls=False)
 
 
+
+    # RobotGazeboEnv virtual methods
+    # ----------------------------
+
+    def _check_all_systems_ready(self):
+        """
+        Checks that all the sensors, publishers and other simulation systems are
+        operational.
+        """
+        self._check_all_sensors_ready()
+        return True
+
+
+    # FetchEnv virtual methods
+    # ----------------------------
 
     def _check_all_sensors_ready(self):
         self._check_joint_states_ready()
@@ -123,12 +145,8 @@ class FetchEnv(robot_gazebo_env_goal.RobotGazeboEnv):
 
         return gripper_rpy
 
-    def _check_all_systems_ready(self):
-
-        self._check_all_sensors_ready()
-        return True
-
-
+    # ParticularEnv methods
+    # ----------------------------
 
     def _init_env_variables(self):
         """Inits variables needed to be initialised each time we reset at the start
@@ -153,49 +171,3 @@ class FetchEnv(robot_gazebo_env_goal.RobotGazeboEnv):
         """Checks if episode done based on observations given.
         """
         raise NotImplementedError()
-
-
-
-
-
-    # Methods needed by the Gazebo Environment
-    # ----------------------------
-
-
-    # Methods that the Task Environment will need to define here as virtual
-    # because they will be used in RobotGazeboEnv GrandParentClass and defined in the
-    # TrainingEnvironment.
-    # ----------------------------
-
-    def _set_init_pose(self):
-        """Sets the Robot in its init pose
-        """
-        raise NotImplementedError()
-
-
-    def _init_env_variables(self):
-        """Inits variables needed to be initialised each time we reset at the start
-        of an episode.
-        """
-        raise NotImplementedError()
-
-    def _compute_reward(self, observations, done):
-        """Calculates the reward to give based on the observations given.
-        """
-        raise NotImplementedError()
-
-    def _set_action(self, action):
-        """Applies the given action to the simulation.
-        """
-        raise NotImplementedError()
-
-    def _get_obs(self):
-        raise NotImplementedError()
-
-    def _is_done(self, observations):
-        """Checks if episode done based on observations given.
-        """
-        raise NotImplementedError()
-
-    # Methods that the Robot Environment will need.
-    # ----------------------------
