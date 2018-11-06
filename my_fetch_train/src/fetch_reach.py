@@ -12,7 +12,7 @@ from fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, 
 
 register(
         id='FetchReach-v0',
-        entry_point='openai_ros:FetchReachEnv',
+        entry_point='fetch_reach:FetchReachEnv',
         timestep_limit=1000,
     )
 
