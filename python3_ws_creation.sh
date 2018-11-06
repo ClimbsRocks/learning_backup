@@ -42,6 +42,9 @@ git pull origin master
 
 git config --global user.email "ClimbsBytes@gmail.com"
 git config --global user.name "ClimbsRocks"
+# rosrun gazebo_ros spawn_model -file ~/python3_ws/src/cube.urdf -urdf -x 1 -model my_object
+# rosrun gazebo_ros spawn_model -database demo_cube -gazebo -model grasp_cube -x 0.70 -y 0 -z 0.35
+
 
 
 # To activate venv and the right bash:
