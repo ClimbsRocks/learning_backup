@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="fetch_train" type="execute_trajectory_service.py" name="execute_trajectory_service_servers" output="screen">
+        
+    </node>
+</launch>
