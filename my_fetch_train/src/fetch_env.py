@@ -7,7 +7,7 @@ from nav_msgs.msg import Odometry
 from openai_ros.fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, EeTrajRequest, JointTraj, JointTrajRequest
 
 
-class FetchEnv(robot_gazebo_env.RobotGazeboEnv):
+class FetchEnv(robot_gazebo_env_goal.RobotGazeboEnv):
     """Superclass for all Fetch environments.
     """
 
