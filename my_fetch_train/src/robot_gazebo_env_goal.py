@@ -2,10 +2,11 @@
 import rospy
 import gym
 from gym.utils import seeding
-from .gazebo_connection import GazeboConnection
-from .controllers_connection import ControllersConnection
+from openai_ros.gazebo_connection import GazeboConnection
+from openai_ros.controllers_connection import ControllersConnection
 #https://bitbucket.org/theconstructcore/theconstruct_msgs/src/master/msg/RLExperimentInfo.msg
-from theconstruct_msgs.msg import RLExperimentInfo
+# TODO: make RLExperimentInfo work
+# from theconstruct_msgs.msg import RLExperimentInfo
 
 # https://github.com/openai/gym/blob/master/gym/core.py
 
@@ -23,7 +24,7 @@ class RobotGazeboEnv(gym.GoalEnv):
 
         # Set up ROS related variables
         self.episode_num = 0
-        self.reward_pub = rospy.Publisher('/openai/reward', RLExperimentInfo, queue_size=1)
+        # self.reward_pub = rospy.Publisher('/openai/reward', RLExperimentInfo, queue_size=1)
 
     # Env methods
     def seed(self, seed=None):
@@ -95,6 +96,7 @@ class RobotGazeboEnv(gym.GoalEnv):
         :param episode_number:
         :return:
         """
+        return
         reward_msg = RLExperimentInfo()
         reward_msg.episode_number = episode_number
         reward_msg.episode_reward = reward
