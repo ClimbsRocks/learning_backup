@@ -1,10 +1,11 @@
 import numpy
 import rospy
-from openai_ros import robot_gazebo_env
+# from openai_ros import robot_gazebo_env
+import robot_gazebo_env_goal
 from std_msgs.msg import Float64
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
-from openai_ros.fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, EeTrajRequest, JointTraj, JointTrajRequest
+from fetch_train.srv import EePose, EePoseRequest, EeRpy, EeRpyRequest, EeTraj, EeTrajRequest, JointTraj, JointTrajRequest
 
 
 class FetchEnv(robot_gazebo_env_goal.RobotGazeboEnv):
