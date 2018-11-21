@@ -6,4 +6,6 @@ baselines
 geometry2
 geometry
 openai_ros
+*.txt
+*.gz
 
