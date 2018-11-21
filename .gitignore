@@ -8,4 +8,6 @@ geometry
 openai_ros
 *.txt
 *.gz
+.DS_Store
+fetch_tc
 

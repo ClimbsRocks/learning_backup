@@ -75,6 +75,7 @@ git clone https://github.com/ros/geometry2
 rm -rf geometry/.git
 rm -rf geometry2/.git
 cp -R ~/python3_ws/src/fetch_train ./
+cp -R ~/python3_ws/src/fetch_moveit_config ./
 
 
 cd ~/p2_ws
@@ -82,7 +83,7 @@ rm -rf build devel
 catkin_make --force-cmake
 source devel/setup.bash
 
-roslaunch fetch_train execute_trajectory_service.launch
+roslaunch fetch_moveit_config execute_trajectory_service.launch
 
 
 
