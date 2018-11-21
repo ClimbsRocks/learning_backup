@@ -76,6 +76,7 @@ rm -rf geometry/.git
 rm -rf geometry2/.git
 cp -R ~/python3_ws/src/fetch_train ./
 cp -R ~/python3_ws/src/fetch_moveit_config ./
+export ROS_PACKAGE_PATH=/home/simulations/public_sim_ws/src/all/:$ROS_PACKAGE_PATH
 
 
 cd ~/p2_ws
@@ -86,7 +87,15 @@ source devel/setup.bash
 roslaunch fetch_moveit_config execute_trajectory_service.launch
 
 
-
+# And finally, in a third tab:
+export ROS_PACKAGE_PATH=/home/simulations/public_sim_ws/src/all/:$ROS_PACKAGE_PATH
+cd ~/p2_ws
+source devel/setup.bash
+cd src
+cp -R /home/simulations/public_sim_ws/src/all/fetch_tc/fetch_sim/fetch_description ./
+cp -R /home/simulations/public_sim_ws/src/all/fetch_tc/fetch_sim/fetch_description ./fetch_train
+cp -R /home/simulations/public_sim_ws/src/all/fetch_tc/fetch_sim/fetch_description ./fetch_train/src
+rosrun fetch_train execute_trajectory_service.py
 
 
 
