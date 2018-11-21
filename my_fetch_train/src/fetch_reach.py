@@ -19,20 +19,20 @@ register(
 
 class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
     def __init__(self):
-        
+
         print ("Entered Reach Env")
-        
+
         self.get_params()
-        
+
         fetch_env.FetchEnv.__init__(self)
         utils.EzPickle.__init__(self)
-        
+
         print ("Call env setup")
         self._env_setup(initial_qpos=self.init_pos)
-        
+
         print ("Call get_obs")
         obs = self._get_obs()
-        
+
         self.action_space = spaces.Box(-1., 1., shape=(self.n_actions,), dtype='float32')
         self.observation_space = spaces.Dict(dict(
             desired_goal=spaces.Box(-np.inf, np.inf, shape=obs['achieved_goal'].shape, dtype='float32'),
@@ -40,7 +40,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             observation=spaces.Box(-np.inf, np.inf, shape=obs['observation'].shape, dtype='float32'),
         ))
 
-        
+
     def get_params(self):
         #get configuration parameters
         """
@@ -77,9 +77,9 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             'joint5': 1.5,
             'joint6': 0.0,
         }
-        
+
     def _set_action(self, action):
-        
+
         # Take action
         assert action.shape == (4,)
         action = action.copy()  # ensure that we don't change the action outside of this scope
@@ -92,13 +92,13 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         if self.block_gripper:
             gripper_ctrl = np.zeros_like(gripper_ctrl)
         action = np.concatenate([pos_ctrl, rot_ctrl, gripper_ctrl])
-            
-            
+
+
         # Apply action to simulation.
         self.set_trajectory_ee(action)
 
     def _get_obs(self):
-        
+
         grip_pos = self.get_ee_pose()
         grip_pos_array = np.array([grip_pos.pose.position.x, grip_pos.pose.position.y, grip_pos.pose.position.z])
         #dt = self.sim.nsubsteps * self.sim.model.opt.timestep #What is this??
@@ -119,7 +119,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             object_velp -= grip_velp
         else:
             object_pos = object_rot = object_velp = object_velr = object_rel_pos = np.zeros(0)
-            
+
         gripper_state = robot_qpos[-2:]
         gripper_vel = robot_qvel[-2:] #* dt  # change to a scalar if the gripper is made symmetric
         """
@@ -127,9 +127,9 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             achieved_goal = grip_pos_array.copy()
         else:
             achieved_goal = np.squeeze(object_pos.copy())
-        """    
+        """
         achieved_goal = self._sample_achieved_goal(grip_pos_array, object_pos)
-            
+
         obs = np.concatenate([
             grip_pos_array, object_pos.ravel(), object_rel_pos.ravel(), gripper_state, object_rot.ravel(),
             object_velp.ravel(), object_velr.ravel(), gripper_vel,
@@ -140,13 +140,13 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             'achieved_goal': achieved_goal.copy(),
             'desired_goal': self.goal.copy(),
         }
-        
+
     def _is_done(self, observations):
-        
+
         d = self.goal_distance(observations['achieved_goal'], self.goal)
-        
+
         return (d < self.distance_threshold).astype(np.float32)
-        
+
     def _compute_reward(self, observations, done):
 
         d = self.goal_distance(observations['achieved_goal'], self.goal)
@@ -154,7 +154,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             return -(d > self.distance_threshold).astype(np.float32)
         else:
             return -d
-        
+
     def _init_env_variables(self):
         """
         Inits variables needed to be initialized each time we reset at the start
@@ -162,7 +162,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         :return:
         """
         pass
-    
+
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
@@ -170,11 +170,11 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         self.set_trajectory_joints(self.init_pos)
 
         return True
-        
+
     def goal_distance(self, goal_a, goal_b):
         assert goal_a.shape == goal_b.shape
         return np.linalg.norm(goal_a - goal_b, axis=-1)
-        
+
 
     def _sample_goal(self):
         if self.has_object:
@@ -185,19 +185,19 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
                 goal[2] += self.np_random.uniform(0, 0.45)
         else:
             goal = self.initial_gripper_xpos[:3] + self.np_random.uniform(-0.15, 0.15, size=3)
-        
+
         #return goal.copy()
         return goal
-        
+
     def _sample_achieved_goal(self, grip_pos_array, object_pos):
         if not self.has_object:
             achieved_goal = grip_pos_array.copy()
         else:
             achieved_goal = np.squeeze(object_pos.copy())
-        
+
         #return achieved_goal.copy()
         return achieved_goal
-        
+
     def _env_setup(self, initial_qpos):
         print ("Init Pos:")
         print (initial_qpos)
@@ -227,16 +227,16 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
         self.initial_gripper_xpos = gripper_pose_array.copy()
         if self.has_object:
             self.height_offset = self.sim.data.get_site_xpos('object0')[2]
-            
+
         self.goal = self._sample_goal()
         self._get_obs()
-        
-    def robot_get_obs(data):
-        
+
+    def robot_get_obs(self, data):
+
         """
         Returns all joint positions and velocities associated with a robot.
         """
-    
+
         if data.position is not None and data.name:
             #names = [n for n in data.name if n.startswith('robot')]
             names = [n for n in data.name]
@@ -244,7 +244,7 @@ class FetchReachEnv(fetch_env.FetchEnv, utils.EzPickle):
             r = 0
             for name in names:
                 r += 1
-                
+
             return (
                 np.array([data.position[i] for i in range(r)]),
                 np.array([data.velocity[i] for i in range(r)]),
